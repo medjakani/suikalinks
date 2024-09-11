@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src * data:; connect-src *">
+    <title>スイカゲームへようこそ</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            background-color: #f7f7f7;
+            margin: 0;
+        }
+        h1 {
+            font-family: Arial, sans-serif;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .button-container img {
+            width: 250px;
+            height: 80px;
+            margin: 15px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .button-container img:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>スイカゲームへようこそ</h1>
+    <div class="button-container">
+        <!-- Play Suika Game Button -->
+        <img src="img/suika-game-button.png" alt="スイカゲーム開始" onclick="location.href='game.html';">
+        
+        <!-- Play Suika Animals Button (link loaded dynamically) -->
+        <img id="suikaAnimalsButton" src="img/suika-animals-button.png" alt="スイカアニマル開始">
+    </div>
+
+    <!-- Script that handles both browser and Cordova environments -->
+    <script>
+        // For browsers (like opening index.html directly)
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("DOM fully loaded and parsed (Fallback for browser)");
+
+            // Fetch the JSON file from GitHub Pages
+            fetch('https://medjakani.github.io/suikalinks/suikalinks.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    console.log('Fetch response received:', response);  // Debug log for the fetch response
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('JSON data loaded:', data);
+                    if (data.suikaAnimalsLink) {
+                        console.log("Suika Animals link found:", data.suikaAnimalsLink);
+                        document.getElementById('suikaAnimalsButton').onclick = function() {
+                            console.log("Suika Animals button clicked");
+                            window.open(data.suikaAnimalsLink, '_blank');  // Opens in a new tab in browser
+                        };
+                    } else {
+                        console.error("No link found in the JSON file.");
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        });
+
+        // For Cordova app environment
+        document.addEventListener("deviceready", function() {
+            console.log("Device is ready");
+
+            // Fetch the JSON file from GitHub Pages (Cordova-specific)
+            fetch('https://medjakani.github.io/suikalinks/suikalinks.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    console.log('Fetch response received:', response);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('JSON data loaded:', data);
+                    if (data.suikaAnimalsLink) {
+                        console.log("Suika Animals link found:", data.suikaAnimalsLink);
+                        document.getElementById('suikaAnimalsButton').onclick = function() {
+                            console.log("Suika Animals button clicked");
+                            cordova.InAppBrowser.open(data.suikaAnimalsLink, '_system');  // Cordova InAppBrowser
+                        };
+                    } else {
+                        console.error("No link found in the JSON file.");
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
+        });
+    </script>
+
+</body>
+</html>
